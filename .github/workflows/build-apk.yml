@@ -5,6 +5,9 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -17,14 +20,29 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.7
 
       - name: Build debug APK
-        run: ./gradlew assembleDebug
+        run: gradle assembleDebug --no-daemon
 
-      - name: Upload APK
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
           path: app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Publish to debug release
+        run: |
+          gh release delete ai-chat-debug --yes || true
+          git tag -f ai-chat-debug
+          git push origin ai-chat-debug --force
+          gh release create ai-chat-debug \
+            app/build/outputs/apk/debug/app-debug.apk \
+            --title "AI Chat (debug build)" \
+            --notes "Automated debug build from commit ${{ github.sha }}" \
+            --prerelease
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

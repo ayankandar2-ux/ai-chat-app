@@ -53,18 +53,16 @@ text field + save.
 
 ## Building
 
-```
-chmod +x gradlew   # you'll need to run `gradle wrapper` once locally/in CI
-                    # to generate gradlew + gradle-wrapper.jar, since those
-                    # binary files aren't included in this scaffold
-./gradlew assembleDebug
-```
+CI uses `gradle/actions/setup-gradle` to install Gradle 8.7 directly on the
+runner and calls `gradle assembleDebug` — no committed wrapper jar needed.
+`.github/workflows/build-apk.yml` builds on every push to `main` (or manual
+`workflow_dispatch`), uploads the APK as a build artifact, and publishes it to
+a rolling `ai-chat-debug` GitHub Release, matching the pattern used in your
+other repos.
 
-`.github/workflows/build-apk.yml` builds a debug APK on push to `main`, same
-pattern as your other projects — but it needs the Gradle wrapper files
-committed first (`gradle wrapper --gradle-version 8.7` from a machine with
-Gradle installed, or let GitHub Actions itself generate it with a `setup-gradle`
-step instead of `gradlew`).
+To build locally you'll still want a Gradle wrapper — generate one with
+`gradle wrapper --gradle-version 8.7` from a machine with Gradle installed,
+then `./gradlew assembleDebug`.
 
 ## Not yet built (next steps, roughly in order)
 
