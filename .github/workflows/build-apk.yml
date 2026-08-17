@@ -26,7 +26,23 @@ jobs:
           gradle-version: 8.7
 
       - name: Build debug APK
-        run: gradle assembleDebug --no-daemon
+        id: build
+        run: gradle assembleDebug --no-daemon --stacktrace 2>&1 | tee build-log.txt
+        continue-on-error: true
+
+      - name: Upload build log on failure
+        if: steps.build.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api -X PUT "/repos/${{ github.repository }}/contents/ci-logs/latest-build-log.txt" \
+            -f message="CI build log for run ${{ github.run_id }}" \
+            -f content="$(base64 -w0 build-log.txt)" \
+            -f branch=main
+
+      - name: Fail job if build failed
+        if: steps.build.outcome == 'failure'
+        run: exit 1
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
@@ -35,6 +51,8 @@ jobs:
           path: app/build/outputs/apk/debug/app-debug.apk
 
       - name: Publish to debug release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release delete ai-chat-debug --yes || true
           git tag -f ai-chat-debug
@@ -44,5 +62,3 @@ jobs:
             --title "AI Chat (debug build)" \
             --notes "Automated debug build from commit ${{ github.sha }}" \
             --prerelease
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
