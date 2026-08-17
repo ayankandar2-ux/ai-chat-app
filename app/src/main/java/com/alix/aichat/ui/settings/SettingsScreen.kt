@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.alix.aichat.data.mcp.McpServerConfig
 import com.alix.aichat.data.provider.ProviderConfig
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     providers: List<ProviderConfig>,

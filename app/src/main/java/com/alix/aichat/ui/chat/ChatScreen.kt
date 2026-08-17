@@ -22,6 +22,7 @@ import com.alix.aichat.data.provider.Role
  * just messages and an input bar. Everything configurable (providers, MCP
  * servers, model choice) lives behind the settings icon, not on this screen.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
     state: ChatUiState,
