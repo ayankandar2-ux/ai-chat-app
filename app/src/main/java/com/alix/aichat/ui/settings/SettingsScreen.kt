@@ -7,7 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.alix.aichat.data.mcp.McpServerConfig
@@ -19,11 +19,23 @@ fun SettingsScreen(
     providers: List<ProviderConfig>,
     mcpServers: List<McpServerConfig>,
     onBack: () -> Unit,
-    onAddProvider: () -> Unit,
+    onAddProvider: (ProviderConfig) -> Unit,
     onToggleProvider: (ProviderConfig, Boolean) -> Unit,
     onAddMcpServer: () -> Unit,
     onToggleMcpServer: (McpServerConfig, Boolean) -> Unit
 ) {
+    var showAddProviderDialog by remember { mutableStateOf(false) }
+
+    if (showAddProviderDialog) {
+        AddProviderDialog(
+            onDismiss = { showAddProviderDialog = false },
+            onConfirm = { config ->
+                onAddProvider(config)
+                showAddProviderDialog = false
+            }
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -46,7 +58,7 @@ fun SettingsScreen(
                     onCheckedChange = { onToggleProvider(provider, it) }
                 )
             }
-            item { AddRow("Add provider", onAddProvider) }
+            item { AddRow("Add provider", { showAddProviderDialog = true }) }
 
             item { Spacer(Modifier.height(24.dp)) }
 

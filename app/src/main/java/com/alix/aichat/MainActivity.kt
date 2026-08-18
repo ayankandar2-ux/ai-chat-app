@@ -44,9 +44,9 @@ class MainActivity : ComponentActivity() {
                             providers = providers,
                             mcpServers = mcpServers,
                             onBack = { screen = Screen.CHAT },
-                            onAddProvider = {
-                                // TODO: open the "pick a template + paste key" flow,
-                                // then append to `providers` and store.saveProviders(providers)
+                            onAddProvider = { newProvider ->
+                                providers = providers + newProvider
+                                store.saveProviders(providers)
                             },
                             onToggleProvider = { provider, enabled ->
                                 providers = providers.map {
