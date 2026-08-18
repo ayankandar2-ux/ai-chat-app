@@ -163,7 +163,9 @@ fun AddProviderDialog(
 @Composable
 private fun TemplateList(onPick: (ProviderTemplate) -> Unit) {
     LazyColumn(
-        Modifier.fillMaxWidth(),
+        Modifier
+            .fillMaxWidth()
+            .heightIn(max = 420.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         items(ProviderTemplates.all) { template ->

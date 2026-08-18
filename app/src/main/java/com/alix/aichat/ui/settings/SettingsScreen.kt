@@ -21,10 +21,11 @@ fun SettingsScreen(
     onBack: () -> Unit,
     onAddProvider: (ProviderConfig) -> Unit,
     onToggleProvider: (ProviderConfig, Boolean) -> Unit,
-    onAddMcpServer: () -> Unit,
+    onAddMcpServer: (McpServerConfig) -> Unit,
     onToggleMcpServer: (McpServerConfig, Boolean) -> Unit
 ) {
     var showAddProviderDialog by remember { mutableStateOf(false) }
+    var showAddMcpDialog by remember { mutableStateOf(false) }
 
     if (showAddProviderDialog) {
         AddProviderDialog(
@@ -32,6 +33,16 @@ fun SettingsScreen(
             onConfirm = { config ->
                 onAddProvider(config)
                 showAddProviderDialog = false
+            }
+        )
+    }
+
+    if (showAddMcpDialog) {
+        AddMcpServerDialog(
+            onDismiss = { showAddMcpDialog = false },
+            onConfirm = { config ->
+                onAddMcpServer(config)
+                showAddMcpDialog = false
             }
         )
     }
@@ -71,7 +82,7 @@ fun SettingsScreen(
                     onCheckedChange = { onToggleMcpServer(server, it) }
                 )
             }
-            item { AddRow("Add MCP server", onAddMcpServer) }
+            item { AddRow("Add MCP server", { showAddMcpDialog = true }) }
         }
     }
 }

@@ -28,9 +28,13 @@ class MainActivity : ComponentActivity() {
                 var providers by remember { mutableStateOf(store.loadProviders()) }
                 var mcpServers by remember { mutableStateOf(store.loadMcpServers()) }
 
-                val repository = remember(providers) { ProviderRepository(providers) }
-                val viewModel = remember(repository) { ChatViewModel(repository) }
+                val repository = remember { ProviderRepository(providers) }
+                val viewModel = remember { ChatViewModel(repository) }
                 val uiState by viewModel.uiState.collectAsState()
+
+                LaunchedEffect(providers) {
+                    repository.updateProviders(providers)
+                }
 
                 Box {
                     when (screen) {
@@ -54,9 +58,9 @@ class MainActivity : ComponentActivity() {
                                 }
                                 store.saveProviders(providers)
                             },
-                            onAddMcpServer = {
-                                // TODO: open "add MCP server" flow (name, URL, token),
-                                // then append to `mcpServers` and store.saveMcpServers(mcpServers)
+                            onAddMcpServer = { newServer ->
+                                mcpServers = mcpServers + newServer
+                                store.saveMcpServers(mcpServers)
                             },
                             onToggleMcpServer = { server, enabled ->
                                 mcpServers = mcpServers.map {

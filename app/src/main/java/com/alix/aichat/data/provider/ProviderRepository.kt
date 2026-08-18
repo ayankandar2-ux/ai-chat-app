@@ -38,6 +38,22 @@ class ProviderRepository(
         preferredId: String? = null
     ): Pair<ProviderConfig, ProviderResult> {
         val ordered = enabledProviders().sortedByDescending { it.id == preferredId }
+
+        if (ordered.isEmpty()) {
+            val placeholder = ProviderConfig(
+                id = "none",
+                displayName = "No provider configured",
+                format = ApiFormat.OPENAI_COMPATIBLE,
+                baseUrl = "",
+                apiKey = "",
+                model = "",
+                enabled = false
+            )
+            return placeholder to ProviderResult.Failure(
+                ProviderError.Unknown("Add a provider in Settings before sending a message.")
+            )
+        }
+
         var lastFailure: ProviderResult.Failure? = null
 
         for (provider in ordered) {
@@ -60,7 +76,7 @@ class ProviderRepository(
             }
         }
         // Every provider failed — this is the only point where the user sees an error.
-        return (ordered.firstOrNull() ?: providers.first()) to
+        return ordered.first() to
             (lastFailure ?: ProviderResult.Failure(ProviderError.Unknown("No providers configured")))
     }
 
